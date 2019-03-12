@@ -55,6 +55,34 @@ public class MethodPrinter
 		if(hasCode)
 		{
 			System.out.println(prefix + commented + "{");
+			
+			byte[] code = ((CodeAttribute) m.getAttribute("Code")).getCode();
+			int length = code.length;
+			
+			CustomDataInput d = new CustomDataInput(code);
+			
+//			try
+//			{
+				while(length > 0)
+				{
+					int lastPos = d.getPos();
+					Bytecodes.printFormatted(prefix + commented + "    ", d, c.getPool());
+					int read = d.getPos() - lastPos;
+					
+					length -= read;
+				}
+				
+				if(length != 0)
+				{
+					System.out.println(prefix + "ERROR while reading, left bytes are: " + length);
+				}
+//			}
+//			catch(Exception e)
+//			{
+//				System.out.println("PARSE-ERROR");
+//				e.printStackTrace(System.out);
+//			}
+			
 			System.out.println(prefix + commented + "}");
 		}
 	}
