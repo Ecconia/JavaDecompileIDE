@@ -1,0 +1,10 @@
+#Maven:
+/target/
+
+#Eclipse:
+/.classpath
+/.settings/
+/.project
+
+#Custom
+/TestClassFiles/
