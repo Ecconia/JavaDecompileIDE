@@ -29,5 +29,20 @@ public class StartDecompileIDE
 				classes.add(clazz);
 			}
 		}
+		
+		//Print each class:
+		for(ClassFile clazz : classes)
+		{
+			System.out.println();
+			try
+			{
+				SimplePrinter.printClass(clazz);
+			}
+			catch(Exception e)
+			{
+				System.out.println("Exception while printing class " + clazz.getClassName());
+				e.printStackTrace(System.out);
+			}
+		}
 	}
 }
