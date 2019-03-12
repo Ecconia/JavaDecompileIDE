@@ -44,5 +44,8 @@ public class StartDecompileIDE
 				e.printStackTrace(System.out);
 			}
 		}
+		
+		//Scans all classes to list present and remote classes.
+		//new ClassScanner(classes);
 	}
 }
