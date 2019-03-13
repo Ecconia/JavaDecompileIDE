@@ -22,7 +22,7 @@ public class Attributes
 		case "EnclosingMethod":
 			return new Attribute(name, d);
 		case "ConstantValue":
-			return new Attribute(name, d);
+			return new ConstantValueAttribute(name, d, pool);
 		case "Signature":
 			return new SignatureAttribute(name, d, pool);
 		case "Exceptions":
