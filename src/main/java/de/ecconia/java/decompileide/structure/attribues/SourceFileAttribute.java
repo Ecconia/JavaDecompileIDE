@@ -19,7 +19,7 @@ public class SourceFileAttribute extends Attribute
 			throw new RuntimeException("Malformed SourceFileAttribute, non-two content length.");
 		}
 		
-		sourceFile = pool.getUtf8(d.readUnsignedShort());
+		sourceFile = pool.getUTF(d.readUnsignedShort());
 	}
 	
 	@Override

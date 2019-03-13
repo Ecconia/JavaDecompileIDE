@@ -7,7 +7,7 @@ import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 
 public class SignatureAttribute extends Attribute
 {
-	private final String sourceFile;
+	private final String descriptor;
 	
 	public SignatureAttribute(String name, DataInput d, ConstantPool pool) throws IOException
 	{
@@ -19,12 +19,12 @@ public class SignatureAttribute extends Attribute
 			throw new RuntimeException("Malformed SignatureAttribute, non-two content length.");
 		}
 		
-		sourceFile = pool.getUtf8(d.readUnsignedShort());
+		descriptor = pool.getUTF(d.readUnsignedShort());
 	}
 	
 	@Override
 	public String toString()
 	{
-		return name + '{' + sourceFile + "}";
+		return name + '{' + descriptor + "}";
 	}
 }

@@ -13,11 +13,11 @@ public class SimplePrinter
 {
 	public static void printClass(ClassFile c) throws IOException
 	{
-		int packageIndex = c.getClassName().lastIndexOf('.');
+		int packageIndex = c.getClassName().lastIndexOf('/');
 		if(packageIndex != -1)
 		{
-			String packageString = c.getClassName().substring(0, c.getClassName().lastIndexOf('.'));
-			System.out.println("package " + packageString + ";");
+			String packageString = c.getClassName().substring(0, c.getClassName().lastIndexOf('/'));
+			System.out.println("package " + packageString.replace('/', '.') + ";");
 		}
 		
 		ClassPrinter.print("", c);

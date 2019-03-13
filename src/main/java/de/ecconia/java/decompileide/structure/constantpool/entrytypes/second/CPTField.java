@@ -1,0 +1,42 @@
+package de.ecconia.java.decompileide.structure.constantpool.entrytypes.second;
+
+import java.io.DataInput;
+import java.io.IOException;
+
+import de.ecconia.java.decompileide.structure.constantpool.CPEntry;
+import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
+import de.ecconia.java.decompileide.structure.constantpool.contypes.ClassTypeName;
+import de.ecconia.java.decompileide.structure.constantpool.resolver.ResolveLater;
+
+public class CPTField extends CPEntry implements ResolveLater
+{
+	private final int index1;
+	private final int index2;
+	
+	private ClassTypeName data;
+	
+	public CPTField(int index, DataInput d) throws IOException
+	{
+		super(index);
+		
+		index1 = d.readUnsignedShort();
+		index2 = d.readUnsignedShort();
+	}
+	
+	@Override
+	public void resolve(ConstantPool pool)
+	{
+		data = new ClassTypeName(pool.getTypeName(index2), pool.getClass(index1));
+	}
+	
+	public ClassTypeName getData()
+	{
+		return data;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.getClass().getSimpleName() + "{" + data.getName() + ", " + data.getType() + ", " + data.getClazz() + "}";
+	}
+}

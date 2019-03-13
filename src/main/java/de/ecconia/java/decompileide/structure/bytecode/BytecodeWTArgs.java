@@ -5,19 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.ecconia.java.decompileide.CustomDataInput;
-import de.ecconia.java.decompileide.structure.constantpool.CPClass;
-import de.ecconia.java.decompileide.structure.constantpool.CPDouble;
-import de.ecconia.java.decompileide.structure.constantpool.CPFloat;
-import de.ecconia.java.decompileide.structure.constantpool.CPInteger;
-import de.ecconia.java.decompileide.structure.constantpool.CPInterfaceMethodRef;
-import de.ecconia.java.decompileide.structure.constantpool.CPInvokeDynamic;
-import de.ecconia.java.decompileide.structure.constantpool.CPLong;
-import de.ecconia.java.decompileide.structure.constantpool.CPMethodHandle;
-import de.ecconia.java.decompileide.structure.constantpool.CPMethodRef;
-import de.ecconia.java.decompileide.structure.constantpool.CPMethodType;
-import de.ecconia.java.decompileide.structure.constantpool.CPString;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
-import de.ecconia.java.decompileide.structure.constantpool.ConstantPoolEntry;
+import de.ecconia.java.decompileide.structure.constantpool.contypes.BootstrapMethod;
+import de.ecconia.java.decompileide.structure.constantpool.contypes.ClassTypeName;
+import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 
 public class BytecodeWTArgs extends Bytecode
 {
@@ -71,59 +62,43 @@ public class BytecodeWTArgs extends Bytecode
 			case PoolIndexMethodOrInterfaceMethodRef:
 			{
 				int index = d.readUnsignedShort();
-				@SuppressWarnings("unchecked")
-				ConstantPoolEntry entry = pool.getEntry(index, CPMethodRef.class, CPInterfaceMethodRef.class);
-				
-				//TODO: Formatting, once parsed
-				ret.add(entry.toString());
+				ClassTypeName data = pool.getMethodOrInterfaceMethod(index);
+				ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
 				break;
 			}
 			case PoolIndexInvokeDynamic:
 			{
 				int index = d.readUnsignedShort();
-				@SuppressWarnings("unchecked")
-				CPInvokeDynamic entry = pool.getEntry(index, CPInvokeDynamic.class);
-				
-				//TODO: Formatting, once parsed
-				ret.add(entry.toString());
+				BootstrapMethod data = pool.getBootstrapMethod(index);
+				ret.add((data.getName() + " {" + data.getType() + "} @" + data.getIndex()).replace('/', '.'));
 				break;
 			}
 			case PoolIndexInterfaceMethodRef:
 			{
 				int index = d.readUnsignedShort();
-				String name = pool.getInterfaceMethodRefName(index);
-				String className = pool.getInterfaceMethodRefClassName(index);
-				String descriptor = pool.getInterfaceMethodRefDescriptor(index);
-				
-				ret.add(className + ":" + name + " {" + descriptor + "}");
+				ClassTypeName data = pool.getInterfaceMethod(index);
+				ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
 				break;
 			}
 			case PoolIndexMethodRef:
 			{
 				int index = d.readUnsignedShort();
-				String name = pool.getMethodRefName(index);
-				String className = pool.getMethodRefClassName(index);
-				String descriptor = pool.getMethodRefDescriptor(index);
-				
-				ret.add(className + ":" + name + " {" + descriptor + "}");
+				ClassTypeName data = pool.getMethod(index);
+				ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
 				break;
 			}
 			case PoolIndexClassRef:
 			{
 				int index = d.readUnsignedShort();
-				String name = pool.getClassName(index);
-				
-				ret.add(name);
+				String name = pool.getClass(index);
+				ret.add(name.replace('/', '.'));
 				break;
 			}
 			case PoolIndexFieldRef:
 			{
 				int index = d.readUnsignedShort();
-				String name = pool.getFieldRefName(index);
-				String className = pool.getFieldRefClassName(index);
-				String descriptor = pool.getFieldRefDescriptor(index);
-				
-				ret.add(className + ":" + name + " {" + descriptor + "}");
+				ClassTypeName data = pool.getField(index);
+				ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
 				break;
 			}
 			case RelBranchLoc:
@@ -160,21 +135,18 @@ public class BytecodeWTArgs extends Bytecode
 			}
 			case Short:
 			{
-				//TBI signed?
 				short amount = d.readShort();
 				ret.add(String.valueOf(amount));
 				break;
 			}
 			case Byte:
 			{
-				//TBI signed?
 				short amount = d.readByte();
 				ret.add(String.valueOf(amount));
 				break;
 			}
 			case UByte:
 			{
-				//TBI signed?
 				int amount = d.readUnsignedByte();
 				ret.add(String.valueOf(amount));
 				break;
@@ -189,28 +161,56 @@ public class BytecodeWTArgs extends Bytecode
 			case PoolIndexValue:
 			{
 				int index = d.readUnsignedShort();
-				@SuppressWarnings("unchecked")
-				ConstantPoolEntry entry = pool.getEntry(index, CPString.class, CPInteger.class, CPFloat.class, CPClass.class, CPMethodType.class, CPMethodHandle.class);
+				Object value = pool.getSmallValue(index);
 				
-				ret.add(entry.toString());
+				if(value instanceof ClassTypeName)
+				{
+					ClassTypeName data = (ClassTypeName) value;
+					ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
+				}
+				else if(value instanceof Descriptor)
+				{
+					ret.add("{" + value.toString().replace('/', '.') + "}");
+				}
+				else if(value instanceof String)
+				{
+					ret.add("\"" + value.toString() + "\"");
+				}
+				else
+				{
+					ret.add(value.toString());
+				}
 				break;
 			}
 			case PoolSmallIndexValue:
 			{
 				int index = d.readUnsignedByte();
-				@SuppressWarnings("unchecked")
-				ConstantPoolEntry entry = pool.getEntry(index, CPString.class, CPInteger.class, CPFloat.class, CPClass.class, CPMethodType.class, CPMethodHandle.class);
+				Object value = pool.getSmallValue(index);
 				
-				ret.add(entry.toString());
+				if(value instanceof ClassTypeName)
+				{
+					ClassTypeName data = (ClassTypeName) value;
+					ret.add((data.getClazz() + ":" + data.getName() + " {" + data.getType() + "}").replace('/', '.'));
+				}
+				else if(value instanceof Descriptor)
+				{
+					ret.add("{" + value.toString().replace('/', '.') + "}");
+				}
+				else if(value instanceof String)
+				{
+					ret.add("\"" + value.toString() + "\"");
+				}
+				else
+				{
+					ret.add(value.toString());
+				}
 				break;
 			}
 			case PoolIndexBigValue:
 			{
 				int index = d.readUnsignedShort();
-				@SuppressWarnings("unchecked")
-				ConstantPoolEntry entry = pool.getEntry(index, CPLong.class, CPDouble.class);
-				
-				ret.add(entry.toString());
+				Object value = pool.getBigValue(index);
+				ret.add(value.toString());
 				break;
 			}
 			case Align:
@@ -251,15 +251,11 @@ public class BytecodeWTArgs extends Bytecode
 				
 				int amount = max - min + 1;
 				
-				System.out.println(max + "-" + min + " -> " + amount + " ~ " + amount*4);
-				System.out.println("At " + d.getPos() + "/" + d.getMax() + " ~ " + (d.getMax() - d.getPos()));
-				
 				String tmp = min + "-" + max + " -> {";
 					
 				for(int i = 0; i < amount; i++)
 				{
 					int v = d.readInt();
-					System.out.println(v);
 					tmp += v;
 					
 					if(i < amount - 1)

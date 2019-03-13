@@ -14,11 +14,7 @@ import java.util.Map;
 
 import de.ecconia.java.decompileide.structure.attribues.Attribute;
 import de.ecconia.java.decompileide.structure.attribues.Attributes;
-import de.ecconia.java.decompileide.structure.constantpool.CPDouble;
-import de.ecconia.java.decompileide.structure.constantpool.CPLong;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
-import de.ecconia.java.decompileide.structure.constantpool.ConstantPoolEntry;
-import de.ecconia.java.decompileide.structure.constantpool.ConstantPoolLib;
 import de.ecconia.java.decompileide.structure.modifier.ClassModifier;
 import de.ecconia.java.decompileide.structure.modifier.FieldModifier;
 import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
@@ -71,14 +67,15 @@ public class ClassFile
 	{
 		smallVersion = d.readUnsignedShort();
 		bigVersion = d.readUnsignedShort();
-		pool = readConstantPool(d);
+		
+		pool = new ConstantPool(d);
 		modifier = new Modifier(d.readUnsignedShort(), ClassModifier.getAll());
-		className = pool.getClassName(d.readUnsignedShort());
+		className = pool.getClass(d.readUnsignedShort());
 		{
 			int superClassIndex = d.readUnsignedShort();
 			if(superClassIndex != 0)
 			{
-				superClassName = pool.getClassName(superClassIndex);
+				superClassName = pool.getClass(superClassIndex);
 			}
 			else
 			{
@@ -100,30 +97,12 @@ public class ClassFile
 		}
 	}
 	
-	private ConstantPool readConstantPool(DataInput d) throws IOException
-	{
-		int constantPoolCount = d.readUnsignedShort();
-		ConstantPoolEntry[] entries = new ConstantPoolEntry[constantPoolCount];
-		for(int i = 1; i < constantPoolCount; i++)
-		{
-			ConstantPoolEntry entry = ConstantPoolLib.parse(d);
-			
-			entries[i] = entry;
-			if(entry instanceof CPLong || entry instanceof CPDouble)
-			{
-				i++;
-			}
-		}
-		
-		return new ConstantPool(entries);
-	}
-	
 	private void readInterfaces(DataInput d) throws IOException
 	{
 		int interfacesCount = d.readUnsignedShort();
 		for(int i = 0; i < interfacesCount; i++)
 		{
-			interfaces.add(pool.getClassName(d.readUnsignedShort()));
+			interfaces.add(pool.getClass(d.readUnsignedShort()));
 		}
 	}
 	
@@ -133,8 +112,8 @@ public class ClassFile
 		for(int i = 0; i < fieldCount; i++)
 		{
 			Modifier modifier = new Modifier(d.readUnsignedShort(), FieldModifier.getAll());
-			String name = pool.getUtf8(d.readUnsignedShort());
-			String descriptor = pool.getUtf8(d.readUnsignedShort());
+			String name = pool.getUTF(d.readUnsignedShort());
+			String descriptor = pool.getUTF(d.readUnsignedShort());
 			Field field = new Field(name, descriptor, modifier);
 			
 			int attributesCount = d.readUnsignedShort();
@@ -153,8 +132,8 @@ public class ClassFile
 		for(int i = 0; i < methodsCount; i++)
 		{
 			Modifier modifier = new Modifier(d.readUnsignedShort(), MethodModifier.getAll());
-			String name = pool.getUtf8(d.readUnsignedShort());
-			String descriptor = pool.getUtf8(d.readUnsignedShort());
+			String name = pool.getUTF(d.readUnsignedShort());
+			String descriptor = pool.getUTF(d.readUnsignedShort());
 			
 			Method method = new Method(name, descriptor, modifier);
 			
@@ -222,7 +201,7 @@ public class ClassFile
 	{
 		return attributes;
 	}
-
+	
 	public ConstantPool getPool()
 	{
 		return pool;

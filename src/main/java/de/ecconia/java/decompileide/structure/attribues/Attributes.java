@@ -9,7 +9,7 @@ public class Attributes
 {
 	public static Attribute parse(DataInput d, ConstantPool pool) throws IOException
 	{
-		String name = pool.getUtf8(d.readUnsignedShort());
+		String name = pool.getUTF(d.readUnsignedShort());
 		switch(name)
 		{
 		//TODO: Implement some more stuff:

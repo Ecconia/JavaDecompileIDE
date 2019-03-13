@@ -37,15 +37,15 @@ public class ClassPrinter
 //		}
 		
 		
-		String className = c.getClassName().substring(c.getClassName().lastIndexOf('.') + 1);
+		String className = c.getClassName().substring(c.getClassName().lastIndexOf('/') + 1);
 		start += className;
-		if(c.getSuperClassName() != null && !c.getSuperClassName().equals("java.lang.Object") && !c.getSuperClassName().equals("java.lang.Enum"))
+		if(c.getSuperClassName() != null && !c.getSuperClassName().equals("java/lang/Object") && !c.getSuperClassName().equals("java/lang/Enum"))
 		{
-			start += " extends " + c.getSuperClassName();
+			start += " extends " + c.getSuperClassName().replace('/', '.');
 		}
 		if(!c.getInterfaces().isEmpty())
 		{
-			start += " implements " + String.join(", ", c.getInterfaces());
+			start += " implements " + String.join(", ", c.getInterfaces()).replace('/', '.');
 		}
 		System.out.println(commented + start);
 		

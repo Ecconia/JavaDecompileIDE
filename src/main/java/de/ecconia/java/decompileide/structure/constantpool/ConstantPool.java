@@ -1,213 +1,191 @@
 package de.ecconia.java.decompileide.structure.constantpool;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.io.DataInput;
+import java.io.IOException;
+
+import de.ecconia.java.decompileide.structure.constantpool.contypes.BootstrapMethod;
+import de.ecconia.java.decompileide.structure.constantpool.contypes.ClassTypeName;
+import de.ecconia.java.decompileide.structure.constantpool.contypes.TypeName;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.direct.CPTDouble;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.direct.CPTLong;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.direct.CPTUTF;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.first.CPTClass;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.first.CPTTypeName;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.second.CPTField;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.second.CPTInterfaceMethod;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.second.CPTInvokeDynamic;
+import de.ecconia.java.decompileide.structure.constantpool.entrytypes.second.CPTMethod;
+import de.ecconia.java.decompileide.structure.constantpool.resolver.Resolve;
+import de.ecconia.java.decompileide.structure.constantpool.resolver.ResolveFirst;
+import de.ecconia.java.decompileide.structure.constantpool.resolver.ResolveLater;
+import de.ecconia.java.decompileide.structure.constantpool.resolver.ResolveLatest;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPBigValue;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPMethodMayInterface;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPPrimitive;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPSmallValue;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPValue;
 
 public class ConstantPool
 {
-	private final ConstantPoolEntry[] entries;
+	private final CPEntry[] entries;
 	
-	public ConstantPool(ConstantPoolEntry[] entries)
+	public ConstantPool(DataInput d) throws IOException
 	{
-		this.entries = entries;
+		int entrieAmount = d.readUnsignedShort();
+		entries = new CPEntry[entrieAmount];
 		
-		//TBI: Either pre-resolve here and be okay with a bit of useless method calls. Or on call with a bit more useless method call. Or an ordered resolve with once useless loops but then done...
-		for(ConstantPoolEntry entry : entries)
+		for(int i = 1; i < entrieAmount; i++)
 		{
-			if(entry != null)
+			CPEntry entry = CPEntry.parse(i, d);
+			entries[i] = entry;
+			if(entry instanceof CPTLong || entry instanceof CPTDouble)
 			{
-				entry.resolve(this);
-			}
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T extends ConstantPoolEntry> T getEntry(int index, Class<? extends ConstantPoolEntry>... classes)
-	{
-		ConstantPoolEntry entry = getEntry(index);
-		for(Class<? extends ConstantPoolEntry> clazz : classes)
-		{
-			if(clazz.isInstance(entry))
-			{
-				return (T) entry;
+				//Long and Double take two indices.
+				i++;
 			}
 		}
 		
-		throw new ConstantPoolException("Tried to get (" + Arrays.asList(classes).stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + ") from constant pool, but found " + entry.getClass().getSimpleName());
-	}
-	
-	public ConstantPoolEntry getEntry(int index)
-	{
-		if(index >= entries.length)
+		//Resolve the entries depending on direct entries:
+		for(CPEntry entry : entries)
 		{
-			throw new ConstantPoolException("Tried to access constant pool outside of its capacity " + index + "/" + entries.length + ".");
+			if(entry instanceof ResolveFirst)
+			{
+				((Resolve) entry).resolve(this);
+			}
 		}
-		ConstantPoolEntry entry = entries[index];
-		if(entry == null)
+		
+		//Resolve the entries depending on the first indirect entries:
+		for(CPEntry entry : entries)
 		{
-			throw new ConstantPoolException("Tried to access constant pool field " + index + ", but found null.");
+			if(entry instanceof ResolveLater)
+			{
+				((Resolve) entry).resolve(this);
+			}
 		}
-		return entry;
+		
+		//Resolve the entries which depend on 
+		for(CPEntry entry : entries)
+		{
+			if(entry instanceof ResolveLatest)
+			{
+				((Resolve) entry).resolve(this);
+			}
+		}
+		
+//		for(int i = 1; i < entrieAmount; i++)
+//		{
+//			CPEntry entry = entries[i];
+//			if(entry != null)
+//			{
+//				System.out.println(i + ": " + entry);
+//			}
+//		}
 	}
 	
 	//#########################################################################
-	//Getters for whatever the heart desires.
 	
-	public String getUtf8(int index)
+	private CPEntry getEntry(int index)
 	{
-		@SuppressWarnings("unchecked")
-		CPUtf8 entry = getEntry(index, CPUtf8.class);
-		//Always loaded.
+		if(index >= entries.length || index < 0)
+		{
+			throw new RuntimeException("Tried to access constant pool outside of its capacity " + index + "/" + entries.length + ".");
+		}
+		
+		CPEntry entry = entries[index];
+		if(entry == null)
+		{
+			throw new RuntimeException("Tried to access constant pool field " + index + ", but found null.");
+		}
+		
+		return entry;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T getEntry(int index, Class<?> clazz)
+	{
+		CPEntry entry = getEntry(index);
+		if(clazz.isInstance(entry))
+		{
+			return (T) entry;
+		}
+		
+		throw new RuntimeException("Tried to get (" + clazz + ") from constant pool, but found " + entry.getClass().getSimpleName());
+	}
+	
+	//#########################################################################
+	
+	/**
+	 * Returns a bare string from the pool.
+	 */
+	public String getUTF(int index)
+	{
+		CPTUTF entry = getEntry(index, CPTUTF.class);
+		return entry.getText();
+	}
+	
+	/**
+	 * Returns a class name from the pool.
+	 */
+	public String getClass(int index)
+	{
+		CPTClass entry = getEntry(index, CPTClass.class);
+		return entry.getClazz();
+	}
+	
+	/**
+	 * Returns a name with its type the pool.
+	 */
+	public TypeName getTypeName(int index)
+	{
+		CPTTypeName entry = getEntry(index, CPTTypeName.class);
+		return entry.getTypeName();
+	}
+	
+	public ClassTypeName getField(int index)
+	{
+		CPTField entry = getEntry(index, CPTField.class);
+		return entry.getData();
+	}
+	
+	public ClassTypeName getMethod(int index)
+	{
+		CPTMethod entry = getEntry(index, CPTMethod.class);
+		return entry.getData();
+	}
+	
+	public ClassTypeName getInterfaceMethod(int index)
+	{
+		CPTInterfaceMethod entry = getEntry(index, CPTInterfaceMethod.class);
+		return entry.getData();
+	}
+	
+	public ClassTypeName getMethodOrInterfaceMethod(int index)
+	{
+		CPMethodMayInterface entry = getEntry(index, CPMethodMayInterface.class);
+		return entry.getData();
+	}
+	
+	public Object getPrimitve(int index)
+	{
+		CPPrimitive entry = getEntry(index, CPPrimitive.class);
 		return entry.getValue();
 	}
 	
-	public String getClassName(int index)
+	public BootstrapMethod getBootstrapMethod(int index)
 	{
-		@SuppressWarnings("unchecked")
-		CPClass entry = getEntry(index, CPClass.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getName();
+		CPTInvokeDynamic entry = getEntry(index, CPTInvokeDynamic.class);
+		return entry.getData();
 	}
 	
-	public String getNameAndTypeName(int index)
+	public Object getBigValue(int index)
 	{
-		@SuppressWarnings("unchecked")
-		CPNameAndType entry = getEntry(index, CPNameAndType.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getName();
+		CPValue val = getEntry(index, CPBigValue.class);
+		return val.getValue();
 	}
 	
-	public String getNameAndTypeType(int index)
+	public Object getSmallValue(int index)
 	{
-		@SuppressWarnings("unchecked")
-		CPNameAndType entry = getEntry(index, CPNameAndType.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getDescriptor();
-	}
-
-	public String getFieldRefName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPFieldRef entry = getEntry(index, CPFieldRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getName();
-	}
-	
-	public String getFieldRefClassName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPFieldRef entry = getEntry(index, CPFieldRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getClassName();
-	}
-	
-	public String getFieldRefDescriptor(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPFieldRef entry = getEntry(index, CPFieldRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getDescriptor();
-	}
-
-	public String getMethodRefName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPMethodRef entry = getEntry(index, CPMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getName();
-	}
-	
-	public String getMethodRefClassName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPMethodRef entry = getEntry(index, CPMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getClassName();
-	}
-	
-	public String getMethodRefDescriptor(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPMethodRef entry = getEntry(index, CPMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getDescriptor();
-	}
-	
-	public String getInterfaceMethodRefName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPInterfaceMethodRef entry = getEntry(index, CPInterfaceMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getName();
-	}
-	
-	public String getInterfaceMethodRefClassName(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPInterfaceMethodRef entry = getEntry(index, CPInterfaceMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getClassName();
-	}
-	
-	public String getInterfaceMethodRefDescriptor(int index)
-	{
-		@SuppressWarnings("unchecked")
-		CPInterfaceMethodRef entry = getEntry(index, CPInterfaceMethodRef.class);
-		entry.resolve(this); //Ensure its loaded.
-		return entry.getDescriptor();
-	}
-
-	public String getMethodRefOrInterfaceMethodRefClassName(int index)
-	{
-		ConstantPoolEntry entry = getEntry(index);
-		entry.resolve(this);
-		if(entry instanceof CPMethodRef)
-		{
-			return ((CPMethodRef) entry).getClassName();
-		}
-		else if(entry instanceof CPInterfaceMethodRef)
-		{
-			return ((CPInterfaceMethodRef) entry).getClassName();
-		}
-		else
-		{
-			throw new ConstantPoolException("Tried to get CPMethodRef or CPInterfaceMethodRef from constant pool, but found " + entry.getClass().getSimpleName());
-		}
-	}
-
-	public String getMethodRefOrInterfaceMethodRefName(int index)
-	{
-		ConstantPoolEntry entry = getEntry(index);
-		entry.resolve(this);
-		if(entry instanceof CPMethodRef)
-		{
-			return ((CPMethodRef) entry).getName();
-		}
-		else if(entry instanceof CPInterfaceMethodRef)
-		{
-			return ((CPInterfaceMethodRef) entry).getName();
-		}
-		else
-		{
-			throw new ConstantPoolException("Tried to get CPMethodRef or CPInterfaceMethodRef from constant pool, but found " + entry.getClass().getSimpleName());
-		}
-	}
-
-	public String getMethodRefOrInterfaceMethodRefDescriptor(int index)
-	{
-		ConstantPoolEntry entry = getEntry(index);
-		entry.resolve(this);
-		if(entry instanceof CPMethodRef)
-		{
-			return ((CPMethodRef) entry).getDescriptor();
-		}
-		else if(entry instanceof CPInterfaceMethodRef)
-		{
-			return ((CPInterfaceMethodRef) entry).getDescriptor();
-		}
-		else
-		{
-			throw new ConstantPoolException("Tried to get CPMethodRef or CPInterfaceMethodRef from constant pool, but found " + entry.getClass().getSimpleName());
-		}
+		CPValue val = getEntry(index, CPSmallValue.class);
+		return val.getValue();
 	}
 }

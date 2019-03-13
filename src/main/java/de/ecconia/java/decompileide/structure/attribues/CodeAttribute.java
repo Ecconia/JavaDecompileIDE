@@ -30,7 +30,7 @@ public class CodeAttribute extends Attribute
 			int catcher = d.readUnsignedShort();
 			if(catcher != 0)
 			{
-				pool.getClassName(catcher);
+				pool.getClass(catcher);
 			}
 		}
 		
