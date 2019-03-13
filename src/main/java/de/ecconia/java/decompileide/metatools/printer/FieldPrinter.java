@@ -1,6 +1,7 @@
 package de.ecconia.java.decompileide.metatools.printer;
 
 import de.ecconia.java.decompileide.structure.Field;
+import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 
 public class FieldPrinter
 {
@@ -17,6 +18,6 @@ public class FieldPrinter
 		{
 			commented = "//";
 		}
-		System.out.println(prefix + commented + f.getModifier().toString() + SimplePrinter.parseDescriptor(f.getDescriptor()) + f.getName() + ";");
+		System.out.println(prefix + commented + f.getModifier().toString() + new Descriptor(f.getDescriptor()).getReturnType().toString().replace('/', '.') + " " + f.getName() + ";");
 	}
 }

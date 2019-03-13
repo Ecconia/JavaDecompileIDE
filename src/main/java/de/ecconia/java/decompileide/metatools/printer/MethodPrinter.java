@@ -7,6 +7,7 @@ import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Method;
 import de.ecconia.java.decompileide.structure.attribues.CodeAttribute;
 import de.ecconia.java.decompileide.structure.bytecode.Bytecodes;
+import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
 
 public class MethodPrinter
@@ -32,7 +33,7 @@ public class MethodPrinter
 			body = "";
 		}
 		
-		String[] pDescriptor = SimplePrinter.parseMethodDescriptor(m.getDescriptor());
+		Descriptor descriptor = new Descriptor(m.getDescriptor());
 		
 		String attributes = SimplePrinter.generateAttributeStringFilter(m.getAttributes(), "Code", "Deprecated");
 		if(attributes != null)
@@ -45,7 +46,7 @@ public class MethodPrinter
 			System.out.println(prefix + "@Deprecated");
 		}
 		
-		String stuff = pDescriptor[0] + " " + name + "(" + pDescriptor[1] + ")";
+		String stuff = descriptor.getReturnType().toString().replace('/', '.') + " " + name + "(" + SimplePrinter.printParameter(descriptor) + ")";
 		if(name.equals("<clinit>") && m.getModifier().check(MethodModifier.STATIC))
 		{
 			stuff = "";
