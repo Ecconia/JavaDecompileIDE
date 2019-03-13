@@ -2,12 +2,15 @@ package de.ecconia.java.decompileide.structure.attribues;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 
 public class CodeAttribute extends Attribute
 {
 	private final byte[] code;
+	private final Map<String, Attribute> attributes = new HashMap<>();
 	
 	public CodeAttribute(String name, DataInput d, ConstantPool pool) throws IOException
 	{
@@ -37,12 +40,18 @@ public class CodeAttribute extends Attribute
 		int attributesCount = d.readUnsignedShort();
 		for(int i = 0; i < attributesCount; i++)
 		{
-			Attributes.parse(d, pool);
+			Attribute a = Attributes.parse(d, pool);
+			attributes.put(a.getName(), a);
 		}
 	}
 	
 	public byte[] getCode()
 	{
 		return code;
+	}
+	
+	public Map<String, Attribute> getAttributes()
+	{
+		return attributes;
 	}
 }

@@ -55,9 +55,14 @@ public class MethodPrinter
 		System.out.println(prefix + commented + m.getModifier().toString() + stuff + body);
 		if(hasCode)
 		{
+			CodeAttribute codeAttribute = ((CodeAttribute) m.getAttribute("Code"));
 			System.out.println(prefix + commented + "{");
+			if(!codeAttribute.getAttributes().isEmpty())
+			{
+				System.out.println(prefix + "    //Attributes: " + String.join(", ", codeAttribute.getAttributes().keySet()));
+			}
 			
-			byte[] code = ((CodeAttribute) m.getAttribute("Code")).getCode();
+			byte[] code = codeAttribute.getCode();
 			int length = code.length;
 			
 			CustomDataInput d = new CustomDataInput(code);
