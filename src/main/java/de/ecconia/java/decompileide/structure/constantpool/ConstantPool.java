@@ -23,7 +23,6 @@ import de.ecconia.java.decompileide.structure.constantpool.special.CPBigValue;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPMethodMayInterface;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPPrimitive;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPSmallValue;
-import de.ecconia.java.decompileide.structure.constantpool.special.CPValue;
 
 public class ConstantPool
 {
@@ -179,13 +178,13 @@ public class ConstantPool
 	
 	public Object getBigValue(int index)
 	{
-		CPValue val = getEntry(index, CPBigValue.class);
+		CPBigValue val = getEntry(index, CPBigValue.class);
 		return val.getValue();
 	}
 	
 	public Object getSmallValue(int index)
 	{
-		CPValue val = getEntry(index, CPSmallValue.class);
+		CPSmallValue val = getEntry(index, CPSmallValue.class);
 		return val.getValue();
 	}
 }

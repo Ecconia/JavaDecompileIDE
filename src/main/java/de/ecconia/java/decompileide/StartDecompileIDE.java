@@ -22,7 +22,7 @@ public class StartDecompileIDE
 			ClassFile clazz = ClassFile.parse(foundclass.getFile());
 			if(clazz == null)
 			{
-				System.out.println("Ecxception while parsing class '" + foundclass.getFile().getAbsolutePath() + "'.");
+				System.out.println("Exception while parsing class '" + foundclass.getFile().getAbsolutePath() + "'.");
 			}
 			else
 			{

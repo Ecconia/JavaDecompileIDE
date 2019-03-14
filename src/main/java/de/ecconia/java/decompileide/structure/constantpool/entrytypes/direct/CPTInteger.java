@@ -9,7 +9,7 @@ import de.ecconia.java.decompileide.structure.constantpool.special.CPSmallValue;
 
 public class CPTInteger extends CPEntry implements CPPrimitive, CPSmallValue
 {
-	private int value;
+	private final int value;
 	
 	public CPTInteger(int index, DataInput d) throws IOException
 	{
