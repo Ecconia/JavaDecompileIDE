@@ -6,7 +6,7 @@ import de.ecconia.java.decompileide.CustomDataInput;
 import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Method;
 import de.ecconia.java.decompileide.structure.attribues.CodeAttribute;
-import de.ecconia.java.decompileide.structure.bytecodes2.OpcodeInfo;
+import de.ecconia.java.decompileide.structure.bytecodes.OpcodeInfo;
 import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
 
