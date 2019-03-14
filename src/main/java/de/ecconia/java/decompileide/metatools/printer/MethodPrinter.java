@@ -14,11 +14,18 @@ public class MethodPrinter
 {
 	public static void print(String prefix, String className, Method m, ClassFile c) throws IOException
 	{
-		String name = m.getName();
-		if(name.equals("<init>"))
+		if(m.isDeprecated())
 		{
-			name = className;
+			System.out.println(prefix + "@Deprecated");
 		}
+		
+		String attributes = SimplePrinter.generateAttributeStringFilter(m.getAttributes(), "Code");
+		if(attributes != null)
+		{
+			System.out.println(prefix + "//Attributes: " + attributes);
+		}
+		
+		// ### Signature ### :
 		
 		String commented = "";
 		if(m.getModifier().isSynthetic())
@@ -26,25 +33,13 @@ public class MethodPrinter
 			commented = "//";
 		}
 		
-		String body = ";";
-		boolean hasCode = m.hasAttribute("Code");
-		if(hasCode)
+		String name = m.getName();
+		if(name.equals("<init>"))
 		{
-			body = "";
+			name = className;
 		}
 		
 		Descriptor descriptor = new Descriptor(m.getDescriptor());
-		
-		String attributes = SimplePrinter.generateAttributeStringFilter(m.getAttributes(), "Code", "Deprecated");
-		if(attributes != null)
-		{
-			System.out.println(prefix + "//Attributes: " + attributes);
-		}
-		
-		if(m.hasAttribute("Deprecated"))
-		{
-			System.out.println(prefix + "@Deprecated");
-		}
 		
 		String stuff = descriptor.getReturnType().toString().replace('/', '.') + " " + name + "(" + SimplePrinter.printParameter(descriptor) + ")";
 		if(name.equals("<clinit>") && m.getModifier().check(MethodModifier.STATIC))
@@ -52,7 +47,13 @@ public class MethodPrinter
 			stuff = "";
 		}
 		
-		System.out.println(prefix + commented + m.getModifier().toString() + stuff + body);
+		boolean hasCode = m.hasAttribute("Code");
+		
+		System.out.println(prefix + commented + m.getModifier().toString() + stuff + (hasCode ? "" : ";"));
+		
+		
+		// ### BODY ### :
+		
 		if(hasCode)
 		{
 			CodeAttribute codeAttribute = ((CodeAttribute) m.getAttribute("Code"));

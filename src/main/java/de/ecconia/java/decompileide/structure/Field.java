@@ -1,9 +1,15 @@
 package de.ecconia.java.decompileide.structure;
 
+import java.io.DataInput;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.ecconia.java.decompileide.structure.attribues.Attribute;
+import de.ecconia.java.decompileide.structure.attribues.Attributes;
+import de.ecconia.java.decompileide.structure.attribues.ConstantValueAttribute;
+import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
+import de.ecconia.java.decompileide.structure.modifier.FieldModifier;
 import de.ecconia.java.decompileide.structure.modifier.Modifier;
 
 public class Field
@@ -13,17 +19,32 @@ public class Field
 	private final Modifier modifier;
 	
 	private Map<String, Attribute> attributes = new HashMap<>();
+	//Attribute properties:
+	private Object value;
 	
-	public Field(String name, String descriptor, Modifier modifier)
+	public Field(DataInput reader, ConstantPool pool) throws IOException
 	{
-		this.name = name;
-		this.descriptor = descriptor;
-		this.modifier = modifier;
+		modifier = new Modifier(reader.readUnsignedShort(), FieldModifier.getAll());
+		name = pool.getUTF(reader.readUnsignedShort());
+		descriptor = pool.getUTF(reader.readUnsignedShort());
+		
+		int attributesCount = reader.readUnsignedShort();
+		for(int j = 0; j < attributesCount; j++)
+		{
+			addAttribute(Attributes.parse(reader, pool));
+		}
 	}
-	
+
 	public void addAttribute(Attribute attribute)
 	{
-		attributes.put(attribute.getName(), attribute);
+		if(attribute instanceof ConstantValueAttribute)
+		{
+			value = ((ConstantValueAttribute) attribute).getValue();
+		}
+		else
+		{
+			attributes.put(attribute.getName(), attribute);
+		}
 	}
 	
 	public String getName()
@@ -39,6 +60,11 @@ public class Field
 	public Modifier getModifier()
 	{
 		return modifier;
+	}
+	
+	public Object getConstantValue()
+	{
+		return value;
 	}
 	
 	public boolean hasAttribute(String id)

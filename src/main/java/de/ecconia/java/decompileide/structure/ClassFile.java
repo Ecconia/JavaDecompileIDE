@@ -16,15 +16,13 @@ import de.ecconia.java.decompileide.structure.attribues.Attribute;
 import de.ecconia.java.decompileide.structure.attribues.Attributes;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 import de.ecconia.java.decompileide.structure.modifier.ClassModifier;
-import de.ecconia.java.decompileide.structure.modifier.FieldModifier;
-import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
 import de.ecconia.java.decompileide.structure.modifier.Modifier;
 
 public class ClassFile
 {
 	public static ClassFile parse(File file)
 	{
-		//TODO: Better error handling.
+		//TODO: Better error handling. <- Lol for the whole project :/
 		try(DataInputStream di = new DataInputStream(new FileInputStream(file)))
 		{
 			int magic = di.readInt();
@@ -111,18 +109,7 @@ public class ClassFile
 		int fieldCount = d.readUnsignedShort();
 		for(int i = 0; i < fieldCount; i++)
 		{
-			Modifier modifier = new Modifier(d.readUnsignedShort(), FieldModifier.getAll());
-			String name = pool.getUTF(d.readUnsignedShort());
-			String descriptor = pool.getUTF(d.readUnsignedShort());
-			Field field = new Field(name, descriptor, modifier);
-			
-			int attributesCount = d.readUnsignedShort();
-			for(int j = 0; j < attributesCount; j++)
-			{
-				field.addAttribute(Attributes.parse(d, pool));
-			}
-			
-			fields.add(field);
+			fields.add(new Field(d, pool));
 		}
 	}
 	
@@ -131,19 +118,7 @@ public class ClassFile
 		int methodsCount = d.readUnsignedShort();
 		for(int i = 0; i < methodsCount; i++)
 		{
-			Modifier modifier = new Modifier(d.readUnsignedShort(), MethodModifier.getAll());
-			String name = pool.getUTF(d.readUnsignedShort());
-			String descriptor = pool.getUTF(d.readUnsignedShort());
-			
-			Method method = new Method(name, descriptor, modifier);
-			
-			int attributesCount = d.readUnsignedShort();
-			for(int j = 0; j < attributesCount; j++)
-			{
-				method.addAttribute(Attributes.parse(d, pool));
-			}
-			
-			methods.add(method);
+			methods.add(new Method(d, pool));
 		}
 	}
 	
