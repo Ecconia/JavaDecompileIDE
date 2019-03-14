@@ -31,6 +31,6 @@ public class TableSwitch extends Opcode
 	@Override
 	public String toString()
 	{
-		return "tableswitch " + defaultAddress + " : {" + Arrays.asList(entries).stream().map(v -> String.valueOf(v)).collect(Collectors.joining(", ")) + "}";
+		return "tableswitch " + defaultAddress + " : {" + Arrays.stream(entries).mapToObj(v -> String.valueOf(v)).collect(Collectors.joining(", ")) + "}";
 	}
 }

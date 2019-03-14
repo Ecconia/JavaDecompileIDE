@@ -412,7 +412,9 @@ public class GenerateOpcodeClasses
 								constructor.addLine("	entries[i][0] = reader.readInt();");
 								constructor.addLine("	entries[i][1] = reader.readInt();");
 								constructor.addLine("}");
-								toString += " \" + defaultAddress + \" : { TODO }";
+								gen.addImport("java.util.Arrays");
+								gen.addImport("java.util.stream.Collectors");
+								toString += " \" + defaultAddress + \" : { \" + Arrays.stream(entries).map(t -> t[0] + \": \" + t[1]).collect(Collectors.joining(\", \")) + \" }";
 								break;
 							case "CustomTableSwitch":
 								gen.addField("private final int defaultAddress;");
@@ -429,7 +431,7 @@ public class GenerateOpcodeClasses
 								constructor.addLine("}");
 								gen.addImport("java.util.Arrays");
 								gen.addImport("java.util.stream.Collectors");
-								toString += " \" + defaultAddress + \" : {\" + Arrays.asList(entries).stream().map(v -> String.valueOf(v)).collect(Collectors.joining(\", \")) + \"}";
+								toString += " \" + defaultAddress + \" : {\" + Arrays.stream(entries).mapToObj(v -> String.valueOf(v)).collect(Collectors.joining(\", \")) + \"}";
 								break;
 							case "CustomWide":
 								gen.addField("private final Opcode instruction;");

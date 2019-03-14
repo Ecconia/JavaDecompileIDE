@@ -308,7 +308,7 @@ public class OpcodeInfo
 			}
 			catch(InstantiationException | IllegalAccessException | IllegalArgumentException e)
 			{
-				throw new Error("Something went wrong constructing ConstantPoolEntry.", e);
+				throw new Error("Something went wrong constructing Opcode.", e);
 			}
 			catch(InvocationTargetException e)
 			{
@@ -318,7 +318,7 @@ public class OpcodeInfo
 				}
 				else
 				{
-					throw new Error("Something went wrong constructing ConstantPoolEntry.", e);
+					throw new Error("Something went wrong constructing Opcode.", e);
 				}
 			}
 		}

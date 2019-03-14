@@ -1,9 +1,11 @@
 package de.ecconia.java.decompileide.structure.bytecodes2.generated;
 
+import java.util.Arrays;
 import de.ecconia.java.decompileide.structure.bytecodes2.Opcode;
 import de.ecconia.java.decompileide.CustomDataInput;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /* Automatically generated class, do not edit. */
 public class LookupSwitch extends Opcode
@@ -29,6 +31,6 @@ public class LookupSwitch extends Opcode
 	@Override
 	public String toString()
 	{
-		return "lookupswitch " + defaultAddress + " : { TODO }";
+		return "lookupswitch " + defaultAddress + " : { " + Arrays.stream(entries).map(t -> t[0] + ": " + t[1]).collect(Collectors.joining(", ")) + " }";
 	}
 }
