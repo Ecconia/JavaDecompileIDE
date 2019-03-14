@@ -17,20 +17,20 @@ public class Attributes
 			return new CodeAttribute(name, d, pool);
 		case "SourceFile":
 			return new SourceFileAttribute(name, d, pool);
-		case "InnerClasses":
-			return new Attribute(name, d);
-		case "EnclosingMethod":
-			return new Attribute(name, d);
 		case "ConstantValue":
 			return new ConstantValueAttribute(name, d, pool);
 		case "Signature":
 			return new SignatureAttribute(name, d, pool);
+		case "Deprecated":
+			return new DeprecatedAttribute(name, d);
 		case "Exceptions":
 			return new Attribute(name, d);
 		case "BootstrapMethods":
 			return new Attribute(name, d);
-		case "Deprecated":
-			return new DeprecatedAttribute(name, d);
+		case "InnerClasses":
+			return new Attribute(name, d);
+		case "EnclosingMethod":
+			return new Attribute(name, d);
 		case "RuntimeVisibleAnnotations":
 			return new RuntimeVisibleAnnotationsAttribute(name, d, pool);
 		//MC-Attributes:
