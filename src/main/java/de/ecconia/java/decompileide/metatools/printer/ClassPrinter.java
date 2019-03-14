@@ -1,11 +1,13 @@
 package de.ecconia.java.decompileide.metatools.printer;
 
 import java.io.IOException;
+import java.util.List;
 
 import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Field;
 import de.ecconia.java.decompileide.structure.Method;
 import de.ecconia.java.decompileide.structure.annotations.Annotation;
+import de.ecconia.java.decompileide.structure.attribues.InnerClassesAttribute;
 import de.ecconia.java.decompileide.structure.modifier.ClassModifier;
 
 public class ClassPrinter
@@ -27,6 +29,15 @@ public class ClassPrinter
 		if(attributes != null)
 		{
 			System.out.println(prefix + "//Attributes: " + attributes);
+		}
+		
+		if(c.hasAttribute("InnerClasses"))
+		{
+			List<String> entries = ((InnerClassesAttribute) c.getAttribute("InnerClasses")).getEntries();
+			for(String s : entries)
+			{
+				System.out.println(prefix + "//InnerClass: " + s);
+			}
 		}
 		
 		for(Annotation annotation : c.getAnnotations())

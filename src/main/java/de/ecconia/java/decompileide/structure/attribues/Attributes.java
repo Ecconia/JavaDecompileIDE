@@ -28,7 +28,7 @@ public class Attributes
 		case "BootstrapMethods":
 			return new Attribute(name, d);
 		case "InnerClasses":
-			return new Attribute(name, d);
+			return new InnerClassesAttribute(name, d, pool);
 		case "EnclosingMethod":
 			return new Attribute(name, d);
 		case "RuntimeVisibleAnnotations":

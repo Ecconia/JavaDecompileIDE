@@ -6,6 +6,9 @@ import java.util.List;
 public enum ClassModifier implements ModifierEnumType
 {
 	PUBLIC(0x0001),
+	PRIVATE(0x0002), //From innerClassAttribute
+	PROTECTED(0x0004), //From innerClassAttribute
+	STATIC(0x0008), //From innerClassAttribute
 	FINAL(0x0010),
 	SUPER(0x0020),
 	INTERFACE(0x0200),

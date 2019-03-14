@@ -197,4 +197,14 @@ public class ClassFile
 	{
 		return pool;
 	}
+
+	public boolean hasAttribute(String string)
+	{
+		return attributes.containsKey(string);
+	}
+
+	public Attribute getAttribute(String string)
+	{
+		return attributes.get(string);
+	}
 }
