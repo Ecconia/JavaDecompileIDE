@@ -6,8 +6,9 @@ import java.io.IOException;
 import de.ecconia.java.decompileide.structure.constantpool.CPEntry;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPBigValue;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPPrimitive;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPRawType;
 
-public class CPTDouble extends CPEntry implements CPPrimitive, CPBigValue
+public class CPTDouble extends CPEntry implements CPPrimitive, CPBigValue, CPRawType
 {
 	private final double value;
 	

@@ -2,12 +2,16 @@ package de.ecconia.java.decompileide.structure;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.attribues.Attribute;
 import de.ecconia.java.decompileide.structure.attribues.Attributes;
 import de.ecconia.java.decompileide.structure.attribues.DeprecatedAttribute;
+import de.ecconia.java.decompileide.structure.attribues.RuntimeVisibleAnnotationsAttribute;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
 import de.ecconia.java.decompileide.structure.modifier.Modifier;
@@ -18,9 +22,10 @@ public class Method
 	private final String descriptor;
 	private final Modifier modifier;
 	
-	private boolean deprecated;
-	
 	private Map<String, Attribute> attributes = new HashMap<>();
+	//Attribute propterties:
+	private boolean deprecated;
+	private final List<Annotation> annotations = new ArrayList<>();
 	
 	public Method(DataInput reader, ConstantPool pool) throws IOException
 	{
@@ -40,6 +45,11 @@ public class Method
 		if(attribute instanceof DeprecatedAttribute)
 		{
 			deprecated = true;
+		}
+		else if(attribute instanceof RuntimeVisibleAnnotationsAttribute)
+		{
+			//TBI: Should only be one of this kind... maybe replace with null and only set if not set already...
+			annotations.addAll(((RuntimeVisibleAnnotationsAttribute) attribute).getAnnotations());
 		}
 		else
 		{
@@ -65,6 +75,11 @@ public class Method
 	public boolean isDeprecated()
 	{
 		return deprecated;
+	}
+	
+	public List<Annotation> getAnnotations()
+	{
+		return annotations;
 	}
 	
 	public boolean hasAttribute(String id)

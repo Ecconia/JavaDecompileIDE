@@ -2,12 +2,16 @@ package de.ecconia.java.decompileide.structure;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.attribues.Attribute;
 import de.ecconia.java.decompileide.structure.attribues.Attributes;
 import de.ecconia.java.decompileide.structure.attribues.ConstantValueAttribute;
+import de.ecconia.java.decompileide.structure.attribues.RuntimeVisibleAnnotationsAttribute;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 import de.ecconia.java.decompileide.structure.modifier.FieldModifier;
 import de.ecconia.java.decompileide.structure.modifier.Modifier;
@@ -21,6 +25,7 @@ public class Field
 	private Map<String, Attribute> attributes = new HashMap<>();
 	//Attribute properties:
 	private Object value;
+	private final List<Annotation> annotations = new ArrayList<>();
 	
 	public Field(DataInput reader, ConstantPool pool) throws IOException
 	{
@@ -40,6 +45,10 @@ public class Field
 		if(attribute instanceof ConstantValueAttribute)
 		{
 			value = ((ConstantValueAttribute) attribute).getValue();
+		}
+		else if(attribute instanceof RuntimeVisibleAnnotationsAttribute)
+		{
+			annotations.addAll(((RuntimeVisibleAnnotationsAttribute) attribute).getAnnotations());
 		}
 		else
 		{
@@ -65,6 +74,11 @@ public class Field
 	public Object getConstantValue()
 	{
 		return value;
+	}
+	
+	public List<Annotation> getAnnotations()
+	{
+		return annotations;
 	}
 	
 	public boolean hasAttribute(String id)

@@ -1,6 +1,7 @@
 package de.ecconia.java.decompileide.metatools.printer;
 
 import de.ecconia.java.decompileide.structure.Field;
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 
 public class FieldPrinter
@@ -11,6 +12,11 @@ public class FieldPrinter
 		if(attributes != null)
 		{
 			System.out.println(prefix + "//Attributes: " + attributes);
+		}
+		
+		for(Annotation annotation : f.getAnnotations())
+		{
+			System.out.println(prefix + annotation);
 		}
 		
 		String commented = "";

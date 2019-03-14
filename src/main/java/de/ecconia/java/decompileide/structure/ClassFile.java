@@ -12,8 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.attribues.Attribute;
 import de.ecconia.java.decompileide.structure.attribues.Attributes;
+import de.ecconia.java.decompileide.structure.attribues.RuntimeVisibleAnnotationsAttribute;
 import de.ecconia.java.decompileide.structure.constantpool.ConstantPool;
 import de.ecconia.java.decompileide.structure.modifier.ClassModifier;
 import de.ecconia.java.decompileide.structure.modifier.Modifier;
@@ -60,6 +62,8 @@ public class ClassFile
 	private final List<Field> fields = new ArrayList<>();
 	private final List<Method> methods = new ArrayList<>();
 	private final Map<String, Attribute> attributes = new HashMap<>();
+	//Properties from attributes:
+	private final List<Annotation> annotations = new ArrayList<>();
 	
 	public ClassFile(DataInput d) throws IOException
 	{
@@ -128,7 +132,14 @@ public class ClassFile
 		for(int i = 0; i < attributesCount; i++)
 		{
 			Attribute attribute = Attributes.parse(d, pool);
-			attributes.put(attribute.getName(), attribute);
+			if(attribute instanceof RuntimeVisibleAnnotationsAttribute)
+			{
+				annotations.addAll(((RuntimeVisibleAnnotationsAttribute) attribute).getAnnotations());
+			}
+			else
+			{
+				attributes.put(attribute.getName(), attribute);
+			}
 		}
 	}
 	
@@ -170,6 +181,11 @@ public class ClassFile
 	public List<Method> getMethods()
 	{
 		return methods;
+	}
+	
+	public List<Annotation> getAnnotations()
+	{
+		return annotations;
 	}
 	
 	public Map<String, Attribute> getAttributes()

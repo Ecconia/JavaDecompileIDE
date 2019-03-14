@@ -5,6 +5,7 @@ import java.io.IOException;
 import de.ecconia.java.decompileide.CustomDataInput;
 import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Method;
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.attribues.CodeAttribute;
 import de.ecconia.java.decompileide.structure.bytecodes.OpcodeInfo;
 import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
@@ -14,15 +15,20 @@ public class MethodPrinter
 {
 	public static void print(String prefix, String className, Method m, ClassFile c) throws IOException
 	{
-		if(m.isDeprecated())
-		{
-			System.out.println(prefix + "@Deprecated");
-		}
-		
 		String attributes = SimplePrinter.generateAttributeStringFilter(m.getAttributes(), "Code");
 		if(attributes != null)
 		{
 			System.out.println(prefix + "//Attributes: " + attributes);
+		}
+		
+		for(Annotation annotation : m.getAnnotations())
+		{
+			System.out.println(prefix + annotation);
+		}
+		
+		if(m.isDeprecated())
+		{
+			System.out.println(prefix + "@Deprecated");
 		}
 		
 		// ### Signature ### :
@@ -51,7 +57,6 @@ public class MethodPrinter
 		
 		System.out.println(prefix + commented + m.getModifier().toString() + stuff + (hasCode ? "" : ";"));
 		
-		
 		// ### BODY ### :
 		
 		if(hasCode)
@@ -70,19 +75,19 @@ public class MethodPrinter
 			
 //			try
 //			{
-				while(length > 0)
-				{
-					int lastPos = d.getPos();
-					System.out.println(prefix + commented + "    " + OpcodeInfo.instructionFromOpcode(d.readUnsignedByte(), d, c.getPool()));
-					int read = d.getPos() - lastPos;
-					
-					length -= read;
-				}
+			while(length > 0)
+			{
+				int lastPos = d.getPos();
+				System.out.println(prefix + commented + "    " + OpcodeInfo.instructionFromOpcode(d.readUnsignedByte(), d, c.getPool()));
+				int read = d.getPos() - lastPos;
 				
-				if(length != 0)
-				{
-					System.out.println(prefix + "ERROR while reading, left bytes are: " + length);
-				}
+				length -= read;
+			}
+			
+			if(length != 0)
+			{
+				System.out.println(prefix + "ERROR while reading, left bytes are: " + length);
+			}
 //			}
 //			catch(Exception e)
 //			{

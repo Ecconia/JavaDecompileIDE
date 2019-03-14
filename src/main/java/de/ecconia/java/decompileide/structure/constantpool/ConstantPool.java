@@ -22,6 +22,7 @@ import de.ecconia.java.decompileide.structure.constantpool.resolver.ResolveLates
 import de.ecconia.java.decompileide.structure.constantpool.special.CPBigValue;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPMethodMayInterface;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPPrimitive;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPRawType;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPSmallValue;
 
 public class ConstantPool
@@ -185,6 +186,12 @@ public class ConstantPool
 	public Object getSmallValue(int index)
 	{
 		CPSmallValue val = getEntry(index, CPSmallValue.class);
+		return val.getValue();
+	}
+	
+	public Object getAnnotationValue(int index)
+	{
+		CPRawType val = getEntry(index, CPRawType.class);
 		return val.getValue();
 	}
 }

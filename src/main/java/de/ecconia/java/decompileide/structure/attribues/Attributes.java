@@ -32,7 +32,7 @@ public class Attributes
 		case "Deprecated":
 			return new DeprecatedAttribute(name, d);
 		case "RuntimeVisibleAnnotations":
-			return new Attribute(name, d);
+			return new RuntimeVisibleAnnotationsAttribute(name, d, pool);
 		//MC-Attributes:
 		case "RuntimeVisibleParameterAnnotations":
 			return new Attribute(name, d);

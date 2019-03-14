@@ -5,6 +5,7 @@ import java.io.IOException;
 import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Field;
 import de.ecconia.java.decompileide.structure.Method;
+import de.ecconia.java.decompileide.structure.annotations.Annotation;
 import de.ecconia.java.decompileide.structure.modifier.ClassModifier;
 
 public class ClassPrinter
@@ -26,6 +27,11 @@ public class ClassPrinter
 		if(attributes != null)
 		{
 			System.out.println(prefix + "//Attributes: " + attributes);
+		}
+		
+		for(Annotation annotation : c.getAnnotations())
+		{
+			System.out.println(prefix + annotation);
 		}
 		
 		//Print Signature:

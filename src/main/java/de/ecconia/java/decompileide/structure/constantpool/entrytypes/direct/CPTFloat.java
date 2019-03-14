@@ -5,9 +5,10 @@ import java.io.IOException;
 
 import de.ecconia.java.decompileide.structure.constantpool.CPEntry;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPPrimitive;
+import de.ecconia.java.decompileide.structure.constantpool.special.CPRawType;
 import de.ecconia.java.decompileide.structure.constantpool.special.CPSmallValue;
 
-public class CPTFloat extends CPEntry implements CPPrimitive, CPSmallValue
+public class CPTFloat extends CPEntry implements CPPrimitive, CPSmallValue, CPRawType
 {
 	private final float value;
 	
