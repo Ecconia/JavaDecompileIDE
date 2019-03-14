@@ -13,7 +13,7 @@ public class InvokeSpecial extends Opcode
 	
 	public InvokeSpecial(CustomDataInput reader, ConstantPool pool) throws IOException
 	{
-		classNameType = pool.getMethod(reader.readUnsignedShort());
+		classNameType = pool.getMethodOrInterfaceMethod(reader.readUnsignedShort());
 	}
 	
 	@Override
