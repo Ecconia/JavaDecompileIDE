@@ -6,7 +6,7 @@ import de.ecconia.java.decompileide.CustomDataInput;
 import de.ecconia.java.decompileide.structure.ClassFile;
 import de.ecconia.java.decompileide.structure.Method;
 import de.ecconia.java.decompileide.structure.attribues.CodeAttribute;
-import de.ecconia.java.decompileide.structure.bytecode.Bytecodes;
+import de.ecconia.java.decompileide.structure.bytecodes2.OpcodeInfo;
 import de.ecconia.java.decompileide.structure.descriptor.Descriptor;
 import de.ecconia.java.decompileide.structure.modifier.MethodModifier;
 
@@ -59,7 +59,7 @@ public class MethodPrinter
 			System.out.println(prefix + commented + "{");
 			if(!codeAttribute.getAttributes().isEmpty())
 			{
-				System.out.println(prefix + "    //Attributes: " + String.join(", ", codeAttribute.getAttributes().keySet()));
+				System.out.println(prefix + commented + "    //Attributes: " + String.join(", ", codeAttribute.getAttributes().keySet()));
 			}
 			
 			byte[] code = codeAttribute.getCode();
@@ -72,7 +72,7 @@ public class MethodPrinter
 				while(length > 0)
 				{
 					int lastPos = d.getPos();
-					Bytecodes.printFormatted(prefix + commented + "    ", d, c.getPool());
+					System.out.println(prefix + commented + "    " + OpcodeInfo.instructionFromOpcode(d.readUnsignedByte(), d, c.getPool()));
 					int read = d.getPos() - lastPos;
 					
 					length -= read;
